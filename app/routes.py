@@ -1,8 +1,10 @@
 from flask import Blueprint, request, jsonify
 #from .firebase_config import db
+from google.cloud import firestore
 
 main = Blueprint('main', __name__)
 
+db = firestore.Client()
 @main.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
@@ -13,20 +15,24 @@ def register_user():
     if not user_id or not nickname or not gender:
         return jsonify({'message': 'Missing fields'}), 400
 
-    # user_ref = db.collection('users').document(user_id)
-    # doc = user_ref.get()
-    return jsonify({'message':user_id + nickname + gender})
+    try:
+        # Firestore reference
+        user_ref = db.collection('users-data').document(user_id)
+        doc = user_ref.get()
 
-    if doc.exists:
-        return jsonify({'message': 'User already registered'}), 400
+        if doc.exists:
+            return jsonify({'message': 'User already registered'}), 400
 
-    user_ref.set({
-        'userId': user_id,
-        'nickname': nickname,
-        'gender': gender,
-    })
+        # Add user data to Firestore
+        user_ref.set({
+            'userId': user_id,
+            'nickname': nickname,
+            'gender': gender,
+        })
 
-    return jsonify({'message': 'User registered successfully'}), 201
+        return jsonify({'message': 'User registered successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # @main.route('/user/<user_id>', methods=['GET'])
 # def get_user_profile(user_id):

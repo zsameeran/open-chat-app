@@ -1,7 +1,7 @@
-import firebase_admin
-from firebase_admin import credentials, firestore
+# import firebase_admin
+# from firebase_admin import credentials, firestore
 
-cred = credentials.Certificate('serviceAccountKey.json')
-firebase_admin.initialize_app(cred)
+# cred = credentials.Certificate('serviceAccountKey.json')
+# firebase_admin.initialize_app(cred)
 
-db = firestore.client()
+# db = firestore.client()
