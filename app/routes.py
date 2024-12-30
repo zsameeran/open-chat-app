@@ -4,7 +4,7 @@ from google.cloud import firestore
 
 main = Blueprint('main', __name__)
 
-db = firestore.Client()
+db = firestore.Client(project = "open-chat-app-446105" ,  database = "user-data")
 @main.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
@@ -17,7 +17,7 @@ def register_user():
 
     try:
         # Firestore reference
-        user_ref = db.collection('users-data').document(user_id)
+        user_ref = db.collection('users-profiles').document(user_id)
         doc = user_ref.get()
 
         if doc.exists:
@@ -33,6 +33,15 @@ def register_user():
         return jsonify({'message': 'User registered successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@main.route('/test-firestore', methods=['GET'])
+def test_firestore():
+    try:
+        collections = [col.id for col in db.collections()]
+        return jsonify({"message": "Connected to Firestore", "collections": collections}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # @main.route('/user/<user_id>', methods=['GET'])
 # def get_user_profile(user_id):
