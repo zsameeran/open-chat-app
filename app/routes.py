@@ -5,6 +5,8 @@ from google.cloud import firestore
 main = Blueprint('main', __name__)
 
 db = firestore.Client(project = "open-chat-app-446105" ,  database = "user-data")
+
+################## USER REGISTRATION #########################################
 @main.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
@@ -33,6 +35,38 @@ def register_user():
         return jsonify({'message': 'User registered successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+################## CODE FOR FRIEND SEARCH #########################################
+
+
+@main.route('/search_users', methods=['POST'])
+def search_users():
+    try:
+        # Parse query from request JSON
+        data = request.json
+        query = data.get('query', '').lower()  # Search term
+        if not query:
+            return jsonify({"error": "Query cannot be empty"}), 400
+
+        # Firestore Query
+        users_ref = db.collection('users-profiles')  # Firestore collection name
+        docs = users_ref.stream()
+
+        # Search logic: Match query in nickname or gender
+        results = []
+        for doc in docs:
+            user = doc.to_dict()
+            if query in user.get('nickname', '').lower():
+                results.append({
+                    "userId": user.get('userId'),
+                    "nickname": user.get('nickname'),
+                    "gender": user.get('gender'),
+                })
+
+        # Return results
+        return jsonify({"results": results}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @main.route('/test-firestore', methods=['GET'])
