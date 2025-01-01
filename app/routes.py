@@ -56,7 +56,7 @@ def search_users():
         results = []
         for doc in docs:
             user = doc.to_dict()
-            if query in user.get('nickname', '').lower():
+            if user.get('nickname', '').startswith(query).lower():
                 results.append({
                     "userId": user.get('userId'),
                     "nickname": user.get('nickname'),
