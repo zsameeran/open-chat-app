@@ -205,16 +205,38 @@ def respond_friend_request():
                 "updatedAt": firestore.SERVER_TIMESTAMP
             })
             message = "Friend request accepted"
+
+            res = createRoom(user_id , friend_id)
         elif response == "Rejected":
             # Delete friendship documents
             user_ref.delete()
             friend_ref.delete()
             message = "Friend request rejected and removed"
-
-        return jsonify({"message": message}), 200
+        if res == 200:
+            return jsonify({"message": message}), 200
+        return jsonify({"error":"IN ROOM CREATION"}), 500
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+
+
+def createRoom(userId , friendId):
+
+    if not userId or not friendId:
+        return 400
+    
+    roomId  = f"{userId}_{friendId}"
+    room_ref = db.collection('conversations-rooms').document(roomId)
+    room_ref.set({
+            "user_1": userId,
+            "user_2": friendId,  # Initial status
+            "createdAt": firestore.SERVER_TIMESTAMP
+        })
+    return 200
+    
+
 
 
 

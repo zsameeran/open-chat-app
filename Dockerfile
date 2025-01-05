@@ -13,5 +13,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose port 8080 (required by Cloud Run)
 EXPOSE 8080
 
-# Run the app with Gunicorn for production
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "app:create_app()"]
+# Run the app with Gunicorn using Eventlet for WebSockets
+CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:8080", "app:create_app()"]
